@@ -1,0 +1,87 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+      "tslint:recommended"
+  ],
+  "jsRules": {},
+  "rules": {
+      "class-name": true,
+      "no-console": false,
+      "curly": false,
+      "max-classes-per-file": false,
+      "member-access": false,
+      "member-ordering": false,
+      "no-bitwise": false,
+      "object-literal-sort-keys": false,
+      "ordered-imports": false,
+      "no-empty-interface": false,
+      "object-literal-key-quotes": false,
+      "trailing-comma": false,
+      "no-angle-bracket-type-assertion": false,
+      "no-unused-expression" : false,
+      "arrow-parens": false,
+      "array-type": false,
+      "unified-signatures": false,
+      "only-arrow-functions": false,
+      "space-before-function-paren": false,
+      "no-var-requires": false,
+      "no-shadowed-variable": false,
+      "align": false,
+      "ban-types": false,
+      "forin": false,
+      "interface-name": false,
+      "comment-format": [
+        true,
+        "check-space"
+      ],
+      "semicolon": [true, "always", "ignore-interfaces"],
+      "indent": [
+        true,
+        "spaces"
+      ],
+      "prefer-object-spread": true,
+      "prefer-const": false,
+      "no-duplicate-variable": true,
+      "no-eval": true,
+      "no-internal-module": true,
+      "no-trailing-whitespace": false,
+      "no-var-keyword": true,
+      "one-line": [
+        true,
+        "check-open-brace",
+        "check-whitespace"
+      ],
+      "quotemark": [
+        true,
+        "single",
+        "avoid-escape"
+      ],
+      "triple-equals": [
+        true,
+        "allow-null-check"
+      ],
+      "typedef-whitespace": [
+        true,
+        {
+          "call-signature": "nospace",
+          "index-signature": "nospace",
+          "parameter": "nospace",
+          "property-declaration": "nospace",
+          "variable-declaration": "nospace"
+        }
+      ],
+      "variable-name": [
+        true,
+        "ban-keywords"
+      ],
+      "whitespace": [
+        true,
+        "check-branch",
+        "check-decl",
+        "check-operator",
+        "check-separator",
+        "check-type"
+      ]
+  },
+  "rulesDirectory": []
+}
