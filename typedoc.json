@@ -1,5 +1,5 @@
 {
-  "name": "Tensil",
+  "name": "React Recon",
   "mode": "modules",
   "theme": "default",
   "readme": "README.md",
@@ -7,7 +7,7 @@
   "ignoreCompilerErrors": "true",
   "experimentalDecorators": "true",
   "emitDecoratorMetadata": "true",
-  "target": "ES6",
+  "target": "ES5",
   "moduleResolution": "node",
   "preserveConstEnums": "true",
   "stripInternal": "true",

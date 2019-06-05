@@ -1,6 +1,6 @@
 {
   "name": "react-recon",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "React state management using Context API and Hooks",
   "main": "dist/index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   },
   "files": [
     "dist",
+    "docs",
     "CHANGE.md",
     "LICENSE",
     "README.md"
@@ -32,12 +33,12 @@
     "react-dom": "^16.8.6"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.4.5",
-    "@babel/preset-react": "^7.0.0",
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.4.0",
     "@babel/plugin-proposal-class-properties": "^7.4.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
     "@types/node": "^11.11.3",
     "@types/react": "^16.8.19",
@@ -47,6 +48,7 @@
     "react-test-renderer": "^16.8.6",
     "rimraf": "^2.6.3",
     "ts-node": "^8.0.3",
+    "typedoc": "^0.14.2",
     "typescript": "^3.4.5"
   }
 }
