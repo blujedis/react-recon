@@ -66,6 +66,11 @@ export function combineReducers(reducers: { [name: string]: Reducer<any, any> })
 
   return function combineWrapper(state, action) {
 
+    // Already dispatched just triggering
+    // a render, perhaps there's a better way.
+    if (action.__prev_state__)
+      return action.__prev_state__;
+
     const nextState = {};
     let changed = false;
 
@@ -194,10 +199,10 @@ export function createStore<S = any, A extends IAction = IAction>(
     let [state, defaultDispatch] = useReducer(reducer || _reducer, initialState || _initialState);
 
     const dispatch = action => {
-      // Set state here so that loggers
-      // can get the next state.
+      // Just get the current state value.
       state = (reducer || _reducer)(state, action);
-      // Ensure state is updated.
+      action.__prev_state__ = state;
+      // Update state using default dispatcher.
       defaultDispatch(action);
       return action;
     };
