@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, Reducer, useState, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, Reducer, useCallback, useState } from 'react';
 import {
   IStoreProps, IStore, Middleware, Dispatch, Dispatcher, IAction, MiddlewareApplied,
   IMiddlewareStore
@@ -9,6 +9,18 @@ function isPlainObject(obj) {
     && obj !== null
     && obj.constructor === Object
     && Object.prototype.toString.call(obj) === '[object Object]';
+}
+
+/**
+ * Adds thunks to react-recon.
+ */
+export function thunkify<Ext = {}, S = any, D extends Dispatch = Dispatch, WithArgs extends any[] = any>
+  (): Middleware<Ext, S, D, WithArgs> {
+  return ({ dispatch, getState, withArgs }) => next => action => {
+    if (typeof action === 'function')
+      return action(dispatch, getState, ...withArgs);
+    return next(action);
+  };
 }
 
 /**
@@ -42,9 +54,16 @@ export function compose(...funcs: any[]): (...args) => void {
  * @param middlewares the middleware functions to be wrapped.
  */
 // export function applyMiddleware<S = any, A extends IAction = IAction>
-export function applyMiddleware<Ext = {}, S = any, D extends Dispatch = Dispatch>
-  // (...middlewares: MiddlewareApply<S, A>[]) {
-  (...middlewares: Middleware<Ext, S, D>[]) {
+export function applyMiddleware<Ext = {}, S = any, D extends Dispatch = Dispatch, WithArgs extends any[] = any>
+  (...middlewares: Middleware<Ext, S, D, WithArgs>[]) {
+  middlewares = middlewares.filter(m => {
+    if ((m as any).withExtraArgument) {
+      console.warn(`Removing "redux-thunk", enabled by default. Consider "args" options for withExtraArgument.`);
+      return false;
+    }
+    return true;
+  });
+  middlewares.unshift(thunkify());
   return (store: IMiddlewareStore<D, S>) => {
     const chain = middlewares.map(m => m(store));
     return compose(...chain);
@@ -64,13 +83,17 @@ export function applyMiddleware<Ext = {}, S = any, D extends Dispatch = Dispatch
  */
 export function combineReducers(reducers: { [name: string]: Reducer<any, any> }) {
 
+  const firstReducer = reducers[Object.keys(reducers)[0]];
+
   return function combineWrapper(state, action) {
 
-    // Already dispatched just triggering
-    // a render, perhaps there's a better way,
-    // believe this will cause a bail out.
-    if (action.__nextstate__)
-      return action.__nextstate__;
+    if (action.type === '__RECON_GET_NEXT_STATE__')
+      return state;
+
+    // Already have state no need
+    // to loop through again.
+    if (action.__next_state__)
+      return action.__next_state__;
 
     const nextState = {};
     let changed = false;
@@ -108,9 +131,9 @@ export function combineReducers(reducers: { [name: string]: Reducer<any, any> })
  * 
  * @param middleware applied middleware to be run before reducers.
  */
-export function createStore<S = any, A extends IAction = IAction>(
+export function createStore<S = any, A extends IAction = IAction, WithArgs extends any[] = any>(
   middleware: MiddlewareApplied<S, Dispatch<A>>
-): IStore<S, A>;
+): IStore<S, A, WithArgs>;
 
 /**
  * Create a new state store using Context API
@@ -123,10 +146,10 @@ export function createStore<S = any, A extends IAction = IAction>(
  * @param initialState the initial state of the store.
  * @param middleware applied middleware to be run before reducers.
  */
-export function createStore<S = any, A extends IAction = IAction>(
+export function createStore<S = any, A extends IAction = IAction, WithArgs extends any[] = any>(
   initialState: S,
   middleware?: MiddlewareApplied<S, Dispatch<A>>
-): IStore<S, A>;
+): IStore<S, A, WithArgs>;
 
 /**
  * Create a new state store using Context API
@@ -142,10 +165,10 @@ export function createStore<S = any, A extends IAction = IAction>(
  * @param reducer the reducer or combined reducer for dispatching.
  * @param middleware applied middleware to be run before reducers.
  */
-export function createStore<S = any, A extends IAction = IAction>(
+export function createStore<S = any, A extends IAction = IAction, WithArgs extends any[] = any>(
   reducer?: Reducer<S, A>,
   middleware?: MiddlewareApplied<S, Dispatch<A>>
-): IStore<S, A>;
+): IStore<S, A, WithArgs>;
 
 /**
  * Create a new state store using Context API
@@ -163,15 +186,15 @@ export function createStore<S = any, A extends IAction = IAction>(
  * @param initialState the initial state of the store.
  * @param middleware applied middleware to be run before reducers.
  */
-export function createStore<S = any, A extends IAction = IAction>(
+export function createStore<S = any, A extends IAction = IAction, WithArgs extends any[] = any>(
   reducer?: Reducer<S, A>,
   initialState?: S,
   middleware?: MiddlewareApplied<S, Dispatch<A>>
-): IStore<S, A>;
-export function createStore<S = any, A extends IAction = IAction>(
+): IStore<S, A, WithArgs>;
+export function createStore<S = any, A extends IAction = IAction, WithArgs extends any[] = any>(
   reducer?: Reducer<S, A> | S | MiddlewareApplied<S, Dispatch<A>>,
   initialState?: S | MiddlewareApplied<S, Dispatch<A>>,
-  middleware?: MiddlewareApplied<S, Dispatch<A>>): IStore<S, A> {
+  middleware?: MiddlewareApplied<S, Dispatch<A>>): IStore<S, A, WithArgs> {
 
   if (Array.isArray(reducer)) {
     middleware = reducer as MiddlewareApplied<S, Dispatch<A>>;
@@ -195,28 +218,47 @@ export function createStore<S = any, A extends IAction = IAction>(
 
   const Context = createContext<[S?, Dispatcher<S, A>?]>([{} as S, dispatcher]);
 
-  const Provider = ({ reducer, initialState, children }: IStoreProps<S>) => {
+  const Provider = ({ reducer, initialState, children, withArgs }: IStoreProps<S>) => {
 
-    let [state, defaultDispatch] = useReducer(reducer || _reducer, initialState || _initialState);
+    _reducer = reducer || _reducer;
+    _initialState = initialState || _initialState || {} as any;
+    (_initialState as any).__RECON__ = { toggle: false };
 
-    const dispatch = action => {
-      // Just get the current state value.
-      state = (reducer || _reducer)(state, action);
-      action.__nextstate__ = state;
-      // Update state using default dispatcher.
-      defaultDispatch(action);
-      return action;
+    let [state, defaultDispatch] = useReducer(_reducer, _initialState);
+    let prevState = state;
+
+    const dispatchNextState = (cb) => {
+      return (_dispatch, _getState) => {
+        _dispatch({ type: '__RECON_GET_NEXT_STATE__' });
+        cb(_getState);
+      };
     };
 
     const store = {
       dispatch: (...args) => dispatcher(...args),
-      getState: () => state
+      getState: (cb) => {
+        if (!cb)
+          return prevState;
+        dispatcher(dispatchNextState((_getState) => {
+          cb(_getState());
+        }));
+      },
+      withArgs: withArgs || []
+    };
+
+    const dispatch = (action) => {
+      prevState = (reducer || _reducer)(prevState, action);
+      action.__next_state__ = prevState;
+      defaultDispatch(action);
+      state = { ...prevState };
+      const { __next_state__, ..._action } = action;
+      return _action;
     };
 
     dispatcher = dispatch;
 
     if (middleware)
-      dispatcher = (middleware)(store)(dispatch);
+      dispatcher = (middleware)(store as any)(dispatch);
 
     return (
       <Context.Provider value={[state, dispatcher]}>
