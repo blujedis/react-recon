@@ -1,6 +1,6 @@
 {
   "name": "react-recon",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "React state management using Context API and Hooks",
   "main": "dist/index.js",
   "scripts": {
@@ -29,26 +29,27 @@
   },
   "license": "ISC",
   "dependencies": {
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.4.0",
-    "@babel/plugin-proposal-class-properties": "^7.4.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
-    "@types/node": "^11.11.3",
-    "@types/react": "^16.8.19",
-    "babel-jest": "^24.8.0",
-    "enzyme": "^3.9.0",
-    "jest": "^24.8.0",
-    "react-test-renderer": "^16.8.6",
-    "rimraf": "^2.6.3",
-    "ts-node": "^8.0.3",
-    "typedoc": "^0.14.2",
-    "typescript": "^3.4.5"
+    "@types/node": "^11.13.20",
+    "@types/react": "^16.9.2",
+    "babel-jest": "^24.9.0",
+    "enzyme": "^3.10.0",
+    "jest": "^24.9.0",
+    "react-test-renderer": "^16.9.0",
+    "rimraf": "^2.7.1",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "typedoc": "^0.15.0",
+    "typescript": "^3.6.2"
   }
 }
